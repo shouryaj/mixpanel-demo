@@ -5,7 +5,7 @@ import Mixpanel from 'mixpanel';
 interface FormData {
   name: string;
   email: string;
-  password: string;
+  company: string;
 }
 
 const mixpanel = Mixpanel.init('fb24bac723aa2227b14b30dd0484f832');
@@ -15,14 +15,15 @@ export default function handler(
   res: NextApiResponse<{ message: string }>
 ) {
   if (req.method === 'POST') {
-    const { name, email, password }: FormData = req.body;
-    console.log('Received form data:', { name, email, password });
+    const { name, email, company }: FormData = req.body;
+    console.log('Received form data:', { name, email, company });
     try {
         // Track the event in Mixpanel
         mixpanel.track('Server Form Submitted', {
             distinct_id: email,
             name,
             email,
+            company
         });
         console.log('Mixpanel event tracked');
     } catch (error) {

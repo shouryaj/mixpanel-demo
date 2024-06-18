@@ -5,7 +5,7 @@ import mixpanel from 'mixpanel-browser';
 interface FormData {
   name: string;
   email: string;
-  password: string;
+  company: string;
 }
 
 const Home: React.FC = () => {
@@ -13,8 +13,10 @@ const Home: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
-    password: '',
+    company: '',
   });
+  const [showButton, setShowButton] = useState<boolean>(true);
+  const [showThankYou, setShowThankYou] = useState<boolean>(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -25,7 +27,10 @@ const Home: React.FC = () => {
   }, []);
 
   const handleCTA = () => {
+    mixpanel.track('CTA Clicked');
+
     setShowForm(true);
+    setShowButton(false);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,25 +52,36 @@ const Home: React.FC = () => {
 
       if (response.ok) {
         console.log('Form submitted successfully');
-        setFormData({ name: '', email: '', password: '' });
+        mixpanel.track('Form Submitted Success', response);
+        setFormData({ name: '', email: '', company: '' });
       } else {
+        mixpanel.track('Form Submitted Failure', response);
         console.error('Error submitting form');
       }
     } catch (error) {
       console.error('Error:', error);
     }
+
+    setShowForm(false);
+    setShowThankYou(true);
   };
 
   return (
     <div className="container">
       <div className="hero">
-        <h1>Welcome to My Landing Page</h1>
-        <p>Experience the power of our amazing product.</p>
-        <button onClick={handleCTA}>Sign Up Now</button>
+        {showButton && (
+        <div>        
+          <p>Self-serve analytics at scale</p>
+          <button className="button-9" onClick={handleCTA}>Get Access</button>
+        </div>
+        )}
+        {showThankYou && (
+          <p>Thank you! We will reach out to you shortly. In the meantime, keep in touch with us through our <a href="#">blog</a>.</p>
+        )}
       </div>
       {showForm && (
         <div className="form-container">
-          <h2>Sign Up</h2>
+          <p className='form-name'>Sign-Up For Access</p>
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label htmlFor="name">Name</label>
@@ -73,7 +89,7 @@ const Home: React.FC = () => {
                 type="text"
                 id="name"
                 name="name"
-                placeholder="Enter your name"
+                placeholder="Name"
                 value={formData.name}
                 onChange={handleChange}
               />
@@ -84,24 +100,24 @@ const Home: React.FC = () => {
                 type="email"
                 id="email"
                 name="email"
-                placeholder="Enter your email"
+                placeholder="Business email"
                 value={formData.email}
                 onChange={handleChange}
               />
             </div>
             <div className="form-group">
-              <label htmlFor="password">Password</label>
+              <label htmlFor="company">Company</label>
               <input
-                type="password"
-                id="password"
-                name="password"
-                placeholder="Enter your password"
-                value={formData.password}
+                type="company"
+                id="company"
+                name="company"
+                placeholder="Organization name"
+                value={formData.company}
                 onChange={handleChange}
               />
             </div>
             <button type="submit" className="submit-btn">
-              Submit
+              Get Started
             </button>
           </form>
         </div>
@@ -113,24 +129,41 @@ const Home: React.FC = () => {
           align-items: center;
           justify-content: center;
           height: 100vh;
+          background-image: url('mixpanel_big.png');
+          background-repeat: no-repeat;
+          background-position: center;
+          background-size: cover;
+          background-color: #f3eef9;
+          box-shadow: 0 0 10px 10px white inset;
         }
         .hero {
           text-align: center;
+          margin-top: 20rem;
           margin-bottom: 2rem;
+          font-size: 20px;
+        }
+        .form-name {
+          text-align: center;
+          font-size: 20px;
+          align-items: center;
+          justify-content: center;
         }
         .form-container {
-          background-color: #f0f0f0;
+          margin-top: 15rem;
           padding: 2rem;
           border-radius: 0.5rem;
           max-width: 400px;
           width: 100%;
+          padding-bottom: 10rem;
+          padding-top: 5rem;
+          font-weight: bold;
         }
         .form-group {
           margin-bottom: 1rem;
         }
         label {
+          align-items: center;
           display: block;
-          font-weight: bold;
           margin-bottom: 0.5rem;
         }
         input {
@@ -151,6 +184,43 @@ const Home: React.FC = () => {
         }
         .submit-btn:hover {
           background-color: #0056b3;
+        }
+        /* CSS */
+        .button-9 {
+          appearance: button;
+          backface-visibility: hidden;
+          background-color: #405cf5;
+          border-radius: 6px;
+          border-width: 0;
+          box-shadow: rgba(50, 50, 93, .1) 0 0 0 1px inset,rgba(50, 50, 93, .1) 0 2px 5px 0,rgba(0, 0, 0, .07) 0 1px 1px 0;
+          box-sizing: border-box;
+          color: #fff;
+          cursor: pointer;
+          font-family: -apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif;
+          font-size: 100%;
+          height: 44px;
+          line-height: 1.15;
+          margin: 12px 0 0;
+          outline: none;
+          overflow: hidden;
+          padding: 0 25px;
+          position: relative;
+          text-align: center;
+          text-transform: none;
+          transform: translateZ(0);
+          transition: all .2s,box-shadow .08s ease-in;
+          user-select: none;
+          -webkit-user-select: none;
+          touch-action: manipulation;
+          width: 100%;
+        }
+
+        .button-9:disabled {
+          cursor: default;
+        }
+
+        .button-9:focus {
+          box-shadow: rgba(50, 50, 93, .1) 0 0 0 1px inset, rgba(50, 50, 93, .2) 0 6px 15px 0, rgba(0, 0, 0, .1) 0 2px 2px 0, rgba(50, 151, 211, .3) 0 0 0 4px;
         }
       `}</style>
     </div>
