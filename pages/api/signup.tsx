@@ -17,7 +17,17 @@ export default function handler(
   if (req.method === 'POST') {
     const { name, email, password }: FormData = req.body;
     console.log('Received form data:', { name, email, password });
-    mixpanel.track("API: FORM SUBMIT SUCCESS")
+    try {
+        // Track the event in Mixpanel
+        mixpanel.track('Server Form Submitted', {
+            distinct_id: email,
+            name,
+            email,
+        });
+        console.log('Mixpanel event tracked');
+    } catch (error) {
+        console.error('Error tracking Mixpanel event:', error);
+    }
     res.status(200).json({ message: 'Form data received successfully' });
   } else {
     res.status(405).json({ message: 'Method not allowed' });
